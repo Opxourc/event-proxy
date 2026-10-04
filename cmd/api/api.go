@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Opxourc/event-proxy/internal/handlers"
 	"github.com/Opxourc/event-proxy/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -38,7 +39,9 @@ func (app *Application) MountRoutes() {
 
 	// Endpoint routes
 	r.Route("/endpoints", func(r chi.Router) {
-
+		r.Get("/", handlers.GetEndpoints(app.repo))
+		r.Post("/", handlers.CreateEndpoint(app.repo))
+		r.Delete("/", handlers.DeleteEndpoint(app.repo))
 	})
 
 	// Event routes
