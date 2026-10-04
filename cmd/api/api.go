@@ -7,18 +7,21 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Opxourc/event-proxy/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 type Application struct {
+	repo    *repository.Repository
 	address string
 	router  *chi.Mux
 }
 
 // New constructs a new Application object.
-func New(address string) *Application {
+func New(address string, repo *repository.Repository) *Application {
 	return &Application{
+		repo:    repo,
 		address: address,
 		router:  nil,
 	}
