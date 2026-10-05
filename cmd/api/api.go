@@ -7,24 +7,26 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Opxourc/event-proxy/internal/handlers"
-	"github.com/Opxourc/event-proxy/internal/repository"
+	httpadapter "github.com/Opxourc/event-proxy/internal/adapters/http"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// Application is the representation of a app instance with it's own handlers, address, and router.
 type Application struct {
-	repo    *repository.Repository
-	address string
-	router  *chi.Mux
+	endpointHandler *httpadapter.EndpointHandler
+	eventHandler    *httpadapter.EventHandler
+	address         string
+	router          *chi.Mux
 }
 
 // New constructs a new Application object.
-func New(address string, repo *repository.Repository) *Application {
+func New(address string, endpointHandler *httpadapter.EndpointHandler, eventHandler *httpadapter.EventHandler) *Application {
 	return &Application{
-		repo:    repo,
-		address: address,
-		router:  nil,
+		endpointHandler: endpointHandler,
+		eventHandler:    eventHandler,
+		address:         address,
+		router:          nil,
 	}
 }
 
@@ -39,14 +41,14 @@ func (app *Application) MountRoutes() {
 
 	// Endpoint routes
 	r.Route("/endpoints", func(r chi.Router) {
-		r.Get("/", handlers.GetEndpoints(app.repo))
-		r.Post("/", handlers.CreateEndpoint(app.repo))
-		r.Delete("/", handlers.DeleteEndpoint(app.repo))
+		r.Get("/", app.endpointHandler.GetEndpoints)
+		r.Post("/", app.endpointHandler.CreateEndpoint)
+		r.Delete("/", app.endpointHandler.DeleteEndpoint)
 	})
 
 	// Event routes
 	r.Route("/event", func(r chi.Router) {
-
+		r.Post("/", app.eventHandler.SendEvent)
 	})
 
 	app.router = r
@@ -64,9 +66,11 @@ func (app *Application) ListenAndServe() {
 		log.Fatal(err)
 	}
 
-	log.Printf("server listening at http://localhost%s\n", app.address)
+	log.Printf("Server listening at http://localhost%s\n", app.address)
 
 	if err := http.Serve(listener, app.router); err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("Server shutdown.")
 }
