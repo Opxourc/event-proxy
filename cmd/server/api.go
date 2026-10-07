@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"log"
@@ -7,21 +7,22 @@ import (
 	"net/http"
 	"time"
 
-	httpadapter "github.com/Opxourc/event-proxy/internal/adapters/http"
+	"github.com/Opxourc/event-proxy/internal/endpoints"
+	"github.com/Opxourc/event-proxy/internal/events"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-// Application is the representation of a app instance with it's own handlers, address, and router.
+// Application serves the HTTP API using the configured handlers and address.
 type Application struct {
-	endpointHandler *httpadapter.EndpointHandler
-	eventHandler    *httpadapter.EventHandler
+	endpointHandler *endpoints.Handler
+	eventHandler    *events.Handler
 	address         string
 	router          *chi.Mux
 }
 
-// New constructs a new Application object.
-func New(address string, endpointHandler *httpadapter.EndpointHandler, eventHandler *httpadapter.EventHandler) *Application {
+// NewApplication constructs an application with endpoint and event handlers.
+func NewApplication(address string, endpointHandler *endpoints.Handler, eventHandler *events.Handler) *Application {
 	return &Application{
 		endpointHandler: endpointHandler,
 		eventHandler:    eventHandler,
@@ -30,7 +31,7 @@ func New(address string, endpointHandler *httpadapter.EndpointHandler, eventHand
 	}
 }
 
-// MountRoutes sets up the route paths that the API will listen to.
+// MountRoutes configures the application's HTTP routes and middleware.
 func (app *Application) MountRoutes() {
 	r := chi.NewRouter()
 
@@ -54,7 +55,7 @@ func (app *Application) MountRoutes() {
 	app.router = r
 }
 
-// ListenAndServe will start up the API and begin listening to requests that are coming in.
+// ListenAndServe starts the HTTP server on the application's configured address.
 func (app *Application) ListenAndServe() {
 	if app.router == nil {
 		slog.Warn("Attempted to call ListenAndServe for application when no router was created.")
