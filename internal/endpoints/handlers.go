@@ -13,10 +13,12 @@ type Handler struct {
 	service Service
 }
 
+// NewHandler constructs an endpoint handler for the given service.
 func NewHandler(service Service) *Handler {
 	return &Handler{service: service}
 }
 
+// GetEndpoints writes the registered endpoint URLs as JSON.
 func (handler *Handler) GetEndpoints(w http.ResponseWriter, r *http.Request) {
 	endpoints, err := handler.service.GetEndpoints(r.Context())
 	if err != nil {
@@ -32,6 +34,7 @@ func (handler *Handler) GetEndpoints(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreateEndpoint decodes and registers an endpoint URL from the request body.
 func (handler *Handler) CreateEndpoint(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		URL string `json:"url"`
@@ -70,6 +73,7 @@ func (handler *Handler) CreateEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// DeleteEndpoint removes the URL supplied in the request's url query parameter.
 func (handler *Handler) DeleteEndpoint(w http.ResponseWriter, r *http.Request) {
 	rawURL := r.URL.Query().Get("url")
 	if err := handler.service.DeleteEndpoint(r.Context(), rawURL); err != nil {

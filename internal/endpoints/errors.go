@@ -2,6 +2,7 @@ package endpoints
 
 import "errors"
 
+// Endpoint errors identify invalid endpoint input and registration failures.
 var (
 	ErrMissingEndpointURL        = errors.New("endpoint URL is required")
 	ErrInvalidEndpointURL        = errors.New("endpoint URL must be a valid HTTP or HTTPS URL")
@@ -9,6 +10,7 @@ var (
 	ErrEndpointAlreadyRegistered = errors.New("endpoint is already registered")
 )
 
+// Errors groups user-facing HTTP responses and internal log messages by channel.
 var Errors = map[string]map[string]string{
 	"HTTP": {
 		"GetEndpointsFailure":       "Unable to retrieve endpoints.",
