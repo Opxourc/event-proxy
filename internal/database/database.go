@@ -7,8 +7,8 @@ import (
 
 // Open connects to the database and creates the tables required by the
 // endpoints and events features.
-func Open(driver string, source string) (*sql.DB, error) {
-	db, err := sql.Open(driver, source)
+func Open(driverName, dataSource string) (*sql.DB, error) {
+	db, err := sql.Open(driverName, dataSource)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
